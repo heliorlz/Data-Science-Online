@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import altair as alt
+import altair as alt  # pacote de visualização interativa
 
 
 def criar_histograma(coluna, df):
@@ -12,12 +12,13 @@ def criar_histograma(coluna, df):
 
 
 def criar_barras(coluna_num, coluna_cat, df):
-    bars = alt.Chart(df, width = 600).mark_bar().encode(
+    bars = alt.Chart(df, width=600).mark_bar().encode(
         x=alt.X(coluna_num, stack='zero'),
         y=alt.Y(coluna_cat),
         tooltip=[coluna_cat, coluna_num]
     ).interactive()
     return bars
+
 
 def criar_boxplot(coluna_num, coluna_cat, df):
     boxplot = alt.Chart(df, width=600).mark_boxplot().encode(
@@ -26,25 +27,30 @@ def criar_boxplot(coluna_num, coluna_cat, df):
     )
     return boxplot
 
+
 def criar_scatterplot(x, y, color, df):
     scatter = alt.Chart(df, width=800, height=400).mark_circle().encode(
         alt.X(x),
         alt.Y(y),
-        color = color,
-        tooltip = [x, y]
+        color=color,
+        tooltip=[x, y]
     ).interactive()
     return scatter
 
+
 def cria_correlationplot(df, colunas_numericas):
-    cor_data = (df[colunas_numericas]).corr().stack().reset_index().rename(columns={0: 'correlation', 'level_0': 'variable', 'level_1': 'variable2'})
-    cor_data['correlation_label'] = cor_data['correlation'].map('{:.2f}'.format)  # Round to 2 decimal
-    base = alt.Chart(cor_data, width=500, height=500).encode( x = 'variable2:O', y = 'variable:O')
-    text = base.mark_text().encode(text = 'correlation_label',color = alt.condition(alt.datum.correlation > 0.5,alt.value('white'),
-    alt.value('black')))
+    cor_data = (df[colunas_numericas]).corr().stack().reset_index().rename(
+        columns={0: 'correlation', 'level_0': 'variable', 'level_1': 'variable2'})
+    cor_data['correlation_label'] = cor_data['correlation'].map(
+        '{:.2f}'.format)  # Round to 2 decimal
+    base = alt.Chart(cor_data, width=500, height=500).encode(
+        x='variable2:O', y='variable:O')
+    text = base.mark_text().encode(text='correlation_label', color=alt.condition(alt.datum.correlation > 0.5, alt.value('white'),
+                                                                                 alt.value('black')))
 
 # The correlation heatmap itself
     cor_plot = base.mark_rect().encode(
-    color = 'correlation:Q')
+        color='correlation:Q')
 
     return cor_plot + text
 
@@ -54,7 +60,8 @@ def main():
     st.title('AceleraDev Data Science')
     st.subheader('Semana 3 - Análise de dados exploratória')
     st.image('https://media.giphy.com/media/R8bcfuGTZONyw/giphy.gif', width=200)
-    file  = st.file_uploader('Escolha a base de dados que deseja analisar (.csv)', type = 'csv')
+    file = st.file_uploader(
+        'Escolha a base de dados que deseja analisar (.csv)', type='csv')
     if file is not None:
         st.subheader('Estatística descritiva univariada')
         df = pd.read_csv(file)
@@ -84,29 +91,39 @@ def main():
             if describe:
                 st.table(df[colunas_numericas].describe().transpose())
         st.subheader('Visualização dos dados')
-        st.image('https://media.giphy.com/media/Rkoat5KMaw2aOHDduz/giphy.gif', width=200)
+        st.image(
+            'https://media.giphy.com/media/Rkoat5KMaw2aOHDduz/giphy.gif', width=200)
         st.markdown('Selecione a visualizacao')
         histograma = st.checkbox('Histograma')
         if histograma:
-            col_num = st.selectbox('Selecione a Coluna Numerica: ', colunas_numericas,key = 'unique')
+            col_num = st.selectbox(
+                'Selecione a Coluna Numerica: ', colunas_numericas, key='unique')
             st.markdown('Histograma da coluna : ' + str(col_num))
             st.write(criar_histograma(col_num, df))
         barras = st.checkbox('Gráfico de barras')
         if barras:
-            col_num_barras = st.selectbox('Selecione a coluna numerica: ', colunas_numericas, key = 'unique')
-            col_cat_barras = st.selectbox('Selecione uma coluna categorica : ', colunas_object, key = 'unique')
-            st.markdown('Gráfico de barras da coluna ' + str(col_cat_barras) + ' pela coluna ' + col_num_barras)
+            col_num_barras = st.selectbox(
+                'Selecione a coluna numerica: ', colunas_numericas, key='unique')
+            col_cat_barras = st.selectbox(
+                'Selecione uma coluna categorica : ', colunas_object, key='unique')
+            st.markdown('Gráfico de barras da coluna ' +
+                        str(col_cat_barras) + ' pela coluna ' + col_num_barras)
             st.write(criar_barras(col_num_barras, col_cat_barras, df))
         boxplot = st.checkbox('Boxplot')
         if boxplot:
-            col_num_box = st.selectbox('Selecione a Coluna Numerica:', colunas_numericas,key = 'unique' )
-            col_cat_box = st.selectbox('Selecione uma coluna categorica : ', colunas_object, key = 'unique')
-            st.markdown('Boxplot ' + str(col_cat_box) + ' pela coluna ' + col_num_box)
+            col_num_box = st.selectbox(
+                'Selecione a Coluna Numerica:', colunas_numericas, key='unique')
+            col_cat_box = st.selectbox(
+                'Selecione uma coluna categorica : ', colunas_object, key='unique')
+            st.markdown('Boxplot ' + str(col_cat_box) +
+                        ' pela coluna ' + col_num_box)
             st.write(criar_boxplot(col_num_box, col_cat_box, df))
         scatter = st.checkbox('Scatterplot')
         if scatter:
-            col_num_x = st.selectbox('Selecione o valor de x ', colunas_numericas, key = 'unique')
-            col_num_y = st.selectbox('Selecione o valor de y ', colunas_numericas, key = 'unique')
+            col_num_x = st.selectbox(
+                'Selecione o valor de x ', colunas_numericas, key='unique')
+            col_num_y = st.selectbox(
+                'Selecione o valor de y ', colunas_numericas, key='unique')
             col_color = st.selectbox('Selecione a coluna para cor', colunas)
             st.markdown('Selecione os valores de x e y')
             st.write(criar_scatterplot(col_num_x, col_num_y, col_color, df))
